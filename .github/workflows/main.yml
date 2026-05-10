@@ -1,4 +1,4 @@
-name: Build Android APK — RD
+name: Build Android APK — RD Expo
 on:
   push:
     branches: [main, master]
@@ -17,25 +17,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          # Removido o 'cache: npm' para matar o erro de lock file not found
 
-      - name: Force Create App Structure
+      - name: Force Create RD Structure
+        # Aqui garantimos que o App.js e o package.json existem na raiz
         run: |
-          echo '{"name":"rd-app","version":"1.0.0","main":"App.js","dependencies":{"expo":"~51.0.0","react-native":"0.74.5"}}' > package.json
-          echo "import React from 'react'; import { Text, View } from 'react-native'; import { registerRootComponent } from 'expo'; function App() { return ( <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000'}}><Text style={{color: '#fff', fontSize: 22}}>RD - REFERÊNCIA DETERMINANTE</Text></View> ); } registerRootComponent(App);" > App.js
+          echo '{"name":"rd-app","version":"1.0.0","main":"index.js","dependencies":{"expo":"~51.0.0","react-native":"0.74.5","expo-status-bar":"~1.12.1"}}' > package.json
+          echo "import { registerRootComponent } from 'expo'; import React from 'react'; import { Text, View, StyleSheet } from 'react-native'; function App() { return ( <View style={styles.container}><Text style={styles.title}>RD - REFERÊNCIA DETERMINANTE</Text><Text style={styles.subtitle}>Sistema Operacional Ativo</Text></View> ); } const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center' }, title: { color: '#fff', fontSize: 24, fontWeight: 'bold' }, subtitle: { color: '#4CAF50', fontSize: 18, marginTop: 10 } }); registerRootComponent(App);" > App.js
+          echo "import './App';" > index.js
 
-      - name: Install Expo CLI
-        run: npm install -g expo-cli
-
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm install --no-package-lock
 
-      - name: Export Android Project
+      - name: Expo Export (Prepare APK Files)
+        # Este comando gera o "coração" do APK sem precisar de login
         run: npx expo export --platform android --dev false
 
-      - name: Upload Artifacts
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rd-referencia-apk
+          name: rd-referencia-determinante-bundle
           path: dist/
           retention-days: 7
