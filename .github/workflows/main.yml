@@ -1,27 +1,41 @@
+name: Build Android APK — RD
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
 
-name: Compile Native APK
-on: [push, workflow_dispatch]
 jobs:
-  build:
+  build-android:
+    name: Compile Native APK
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js 24
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '24' # Atualizado conforme imagem d0802fe0
+          node-version: '22'
+          # Removido o 'cache: npm' para matar o erro de lock file not found
 
-      - name: Force Create RD Engine
+      - name: Force Create App Structure
         run: |
-          # Criando o coração técnico na raiz exata
-          echo '{"name":"rd-app","version":"1.0.0","main":"App.js","dependencies":{"expo":">=45.0.0","react-native":"0.68.2"}}' > package.json
-          
-          echo "import React from 'react'; import { Text, View } from 'react-native'; import { registerRootComponent } from 'expo'; function App() { return ( <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000'}}><Text style={{color: '#fff', fontSize: 20}}>RD - REFERÊNCIA DETERMINANTE</Text><Text style={{color: '#fff'}}>SISTEMA OPERACIONAL</Text></View> ); } registerRootComponent(App);" > App.js
+          echo '{"name":"rd-app","version":"1.0.0","main":"App.js","dependencies":{"expo":"~51.0.0","react-native":"0.74.5"}}' > package.json
+          echo "import React from 'react'; import { Text, View } from 'react-native'; import { registerRootComponent } from 'expo'; function App() { return ( <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000'}}><Text style={{color: '#fff', fontSize: 22}}>RD - REFERÊNCIA DETERMINANTE</Text></View> ); } registerRootComponent(App);" > App.js
+
+      - name: Install Expo CLI
+        run: npm install -g expo-cli
 
       - name: Install dependencies
         run: npm install --no-package-lock
 
-      - name: Build Android APK
-        # Comando de exportação limpa
+      - name: Export Android Project
         run: npx expo export --platform android --dev false
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rd-referencia-apk
+          path: dist/
+          retention-days: 7
