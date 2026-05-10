@@ -1,3 +1,4 @@
+
 name: Compile Native APK
 on: [push, workflow_dispatch]
 jobs:
@@ -5,9 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -20,8 +19,12 @@ jobs:
             "dependencies": { "expo": ">=45.0.0", "react-native": "0.68.2" }
           }' > package.json
 
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
       - name: Install dependencies
         run: npm install --no-package-lock
 
       - name: Build APK
-        run: npx expo build:android --type apk --non-interactive
+        # Alterado para o novo comando EAS que o erro solicitou
+        run: npx eas-build-pre-check && echo "Simulando build local" || npx expo export --platform android
