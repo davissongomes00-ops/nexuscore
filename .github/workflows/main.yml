@@ -6,29 +6,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24' # Atualizado conforme imagem d0802fe0
 
-      - name: Force Create Infrastructure
+      - name: Force Create RD Engine
         run: |
-          # Criando o manifesto
-          echo '{
-            "name": "rd-referencia-determinante",
-            "version": "1.0.0",
-            "main": "index.js",
-            "dependencies": { "expo": ">=45.0.0", "react-native": "0.68.2" }
-          }' > package.json
+          # Criando o coração técnico na raiz exata
+          echo '{"name":"rd-app","version":"1.0.0","main":"App.js","dependencies":{"expo":">=45.0.0","react-native":"0.68.2"}}' > package.json
           
-          # Criando o arquivo principal que o erro reclamou (App.js)
-          echo "import React from 'react'; import { Text, View } from 'react-native'; export default function App() { return ( <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>RD Referência Determinante - Pronto!</Text></View> ); }" > App.js
-          
-          # Criando o ponto de entrada (index.js)
-          echo "import { registerRootComponent } from 'expo'; import App from './App'; registerRootComponent(App);" > index.js
+          echo "import React from 'react'; import { Text, View } from 'react-native'; import { registerRootComponent } from 'expo'; function App() { return ( <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000'}}><Text style={{color: '#fff', fontSize: 20}}>RD - REFERÊNCIA DETERMINANTE</Text><Text style={{color: '#fff'}}>SISTEMA OPERACIONAL</Text></View> ); } registerRootComponent(App);" > App.js
 
       - name: Install dependencies
         run: npm install --no-package-lock
 
-      - name: Build Android Bundle
-        # Este comando agora encontrará o App.js na raiz
+      - name: Build Android APK
+        # Comando de exportação limpa
         run: npx expo export --platform android --dev false
